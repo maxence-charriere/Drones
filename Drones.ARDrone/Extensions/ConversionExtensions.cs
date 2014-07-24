@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Drones.ARDrone.Client.Extensions
+namespace Drones.ARDrone.Extensions
 {
     public static class ConversionExtensions
     {

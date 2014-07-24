@@ -8,7 +8,13 @@ namespace Drones.Client
 {
     public interface IDroneClient
     {
+        // @Properties
+        bool IsActive { get; }
+        bool IsConnected { get; }
+
         // @Members
+        void Start();
+        void Stop();
         void TakeOff();
         void Land();
         void Emergency();

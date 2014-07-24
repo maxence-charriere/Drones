@@ -2,3 +2,4 @@ bin
 obj
 
 *.suo
+/Drones.ARDrone/Client/Navdata/Old

@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -53,8 +55,14 @@
     <Compile Include="Client\ATCommands\PCmdMagCommand.cs" />
     <Compile Include="Client\ATCommands\RefCommand.cs" />
     <Compile Include="Client\ATCommands\RefMode.cs" />
-    <Compile Include="Client\Extensions\ConversionExtensions.cs" />
-    <Compile Include="Client\NavData\NavDataMode.cs" />
+    <Compile Include="Client\Navdata\Blocks\NavdataChecksum.cs" />
+    <Compile Include="Client\Navdata\Blocks\NavdataHeader.cs" />
+    <Compile Include="Client\Navdata\Blocks\NavdataOption.cs" />
+    <Compile Include="Client\Navdata\NavdataOptionTag.cs" />
+    <Compile Include="Extensions\ConversionExtensions.cs" />
+    <Compile Include="Client\Navdata\NavdataAcquisition.cs" />
+    <Compile Include="Client\Navdata\NavDataMode.cs" />
+    <Compile Include="Client\Navdata\NavdataPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -18,12 +18,18 @@ namespace Drones.ARDrone.Client.ATCommands
         public const int CommandPort = 5556;
         public const int KeepAliveTimeout = 20;
         public readonly ConcurrentQueue<ATCommand> CommandQueue = new ConcurrentQueue<ATCommand>();
-        public readonly string Hostname;
+        public readonly ARDrone2Client DroneClient;
+
 
         // @Public
-        public ATCommandSender(string hostname = "192.168.1.1")
+        public ATCommandSender(ARDrone2Client droneClient)
         {
-            Hostname = hostname;
+            DroneClient = droneClient;
+        }
+
+        public void Send(ATCommand command)
+        {
+            CommandQueue.Enqueue(command);
         }
 
 
@@ -33,19 +39,19 @@ namespace Drones.ARDrone.Client.ATCommands
             using (var udpClient = new UdpClient(CommandPort))
             {
                 // Connection.
-                udpClient.Connect(Hostname, CommandPort);
+                udpClient.Connect(DroneClient.Hostname, CommandPort);
 
                 // Sending first message.
                 byte[] firstMessage = BitConverter.GetBytes(_sequenceNumber);
                 udpClient.Send(firstMessage, firstMessage.Length);
 
                 CommandQueue.Enqueue(ComWdgCommand.Default);
-                Stopwatch swKeepAlive = Stopwatch.StartNew();
+                Stopwatch swKeepAliveTimeout = Stopwatch.StartNew();
 
                 // Loop launch.
-                while (token.IsCancellationRequested == false)
+                while (!token.IsCancellationRequested)
                 {
-                    bool isResetComWatchdogCmdRequired = swKeepAlive.ElapsedMilliseconds > KeepAliveTimeout;
+                    bool isResetComWatchdogCmdRequired = swKeepAliveTimeout.ElapsedMilliseconds > KeepAliveTimeout;
                     if (CommandQueue.Count > 0 || isResetComWatchdogCmdRequired)
                     {
                         using (var udpPacket = new MemoryStream())
@@ -53,7 +59,7 @@ namespace Drones.ARDrone.Client.ATCommands
                             if (isResetComWatchdogCmdRequired)
                             {
                                 FillUdpPacket(udpPacket, ComWdgCommand.Default);
-                                swKeepAlive.Restart();
+                                swKeepAliveTimeout.Restart();
                             }
 
                             ATCommand command = null;

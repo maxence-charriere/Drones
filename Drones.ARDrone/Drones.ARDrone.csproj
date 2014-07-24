@@ -55,6 +55,7 @@
     <Compile Include="Client\ATCommands\PCmdMagCommand.cs" />
     <Compile Include="Client\ATCommands\RefCommand.cs" />
     <Compile Include="Client\ATCommands\RefMode.cs" />
+    <Compile Include="Client\Navdata\Blocks\INativeBlock.cs" />
     <Compile Include="Client\Navdata\Blocks\NavdataChecksum.cs" />
     <Compile Include="Client\Navdata\Blocks\NavdataHeader.cs" />
     <Compile Include="Client\Navdata\Blocks\NavdataOption.cs" />

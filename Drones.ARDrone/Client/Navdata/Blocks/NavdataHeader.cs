@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Drones.ARDrone.Client.Navdata.Blocks
 {
-    public class NavdataHeader
+    public class NavdataHeader : INativeBlock
     {
         // @Properties
         public uint Header { get; private set; }
@@ -13,10 +13,16 @@ namespace Drones.ARDrone.Client.Navdata.Blocks
         public bool IsVisionDefined { get; private set; }
         public bool IsValid { get; private set; }
 
+        public ushort Size
+        {
+            get
+            {
+                return _size;
+            }
+        }
+
 
         // @Public
-        public const ushort Size = (sizeof(uint) * 3) + sizeof(int);
-
         public NavdataHeader()
         {
         }
@@ -43,5 +49,6 @@ namespace Drones.ARDrone.Client.Navdata.Blocks
 
         // @Private
         const int _navdataHeader = 0x55667788;
+        const ushort _size = (sizeof(uint) * 3) + sizeof(int);
     }
 }

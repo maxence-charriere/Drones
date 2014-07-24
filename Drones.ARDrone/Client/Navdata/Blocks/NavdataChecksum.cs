@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Drones.ARDrone.Client.Navdata.Blocks
 {
-    public class NavdataChecksum
+    public class NavdataChecksum : INativeBlock
     {
         // @Properties
         public static readonly NavdataChecksum Default = new NavdataChecksum();

@@ -45,7 +45,7 @@ namespace Drones.ARDrone.Client.Navdata
                 Header = NavdataHeader.FromByteArray(Data, position);
                 if (Header.IsValid)
                 {
-                    position += NavdataHeader.Size;
+                    position += Header.Size;
                     while (position < Data.Length)
                     {
                         var option = NavdataOption.FromByteArray(Data, position);

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Drones.ARDrone.Client.Navdata.Blocks
 {
-    public class NavdataOption
+    public class NavdataOption : INativeBlock
     {
         // @Properties
         public ushort Tag { get; private set; }

@@ -14,17 +14,14 @@ namespace Drones.ARDrone.Client.ATCommands
 {
     public class ATCommandSender : WorkerBase
     {
-        // @Properties
-        public const int CommandPort = 5556;
-        public const int KeepAliveTimeout = 20;
-        public readonly ConcurrentQueue<ATCommand> CommandQueue = new ConcurrentQueue<ATCommand>();
-        public readonly ARDrone2Client DroneClient;
-
-
         // @Public
-        public ATCommandSender(ARDrone2Client droneClient)
+        public const int CommandPort = 5556;
+        public readonly ConcurrentQueue<ATCommand> CommandQueue = new ConcurrentQueue<ATCommand>();
+        public readonly string Hostname;
+
+        public ATCommandSender(string hostname)
         {
-            DroneClient = droneClient;
+            Hostname = hostname;
         }
 
         public void Send(ATCommand command)
@@ -39,7 +36,7 @@ namespace Drones.ARDrone.Client.ATCommands
             using (var udpClient = new UdpClient(CommandPort))
             {
                 // Connection.
-                udpClient.Connect(DroneClient.Hostname, CommandPort);
+                udpClient.Connect(Hostname, CommandPort);
 
                 // Sending first message.
                 byte[] firstMessage = BitConverter.GetBytes(_sequenceNumber);
@@ -51,17 +48,10 @@ namespace Drones.ARDrone.Client.ATCommands
                 // Loop launch.
                 while (!token.IsCancellationRequested)
                 {
-                    bool isResetComWatchdogCmdRequired = swKeepAliveTimeout.ElapsedMilliseconds > KeepAliveTimeout;
-                    if (CommandQueue.Count > 0 || isResetComWatchdogCmdRequired)
+                    if (CommandQueue.Count > 0)
                     {
                         using (var udpPacket = new MemoryStream())
                         {
-                            if (isResetComWatchdogCmdRequired)
-                            {
-                                FillUdpPacket(udpPacket, ComWdgCommand.Default);
-                                swKeepAliveTimeout.Restart();
-                            }
-
                             ATCommand command = null;
                             while (CommandQueue.TryDequeue(out command))
                             {

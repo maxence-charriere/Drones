@@ -11,15 +11,12 @@ namespace Drones.ARDrone.Client.ATCommands
     /// </summary>
     public class RefCommand : ATCommand
     {
-        // @Properties
-        public readonly RefMode Mode;
-
+        // @Public
         public static readonly RefCommand Land = new RefCommand(RefMode.Land);
         public static readonly RefCommand TakeOff = new RefCommand(RefMode.TakeOff);
         public static readonly RefCommand Emergency = new RefCommand(RefMode.Emergency);
+        public readonly RefMode Mode;
 
-
-        // @Public
         public override string ToString(int sequenceNumber)
         {
             return string.Format("AT*REF={0},{1}\r", sequenceNumber, (int)Mode);

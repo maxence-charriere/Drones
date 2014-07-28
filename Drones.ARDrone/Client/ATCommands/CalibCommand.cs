@@ -15,13 +15,10 @@ namespace Drones.ARDrone.Client.ATCommands
     /// </summary>  
     public class CalibCommand : ATCommand
     {
-        // @Properties
+        // @Public
+        public static readonly CalibCommand Magnetometer = new CalibCommand(CalibrationDevice.Magnetometer);
         public readonly CalibrationDevice Device;
 
-        public static readonly CalibCommand Magnetometer = new CalibCommand(CalibrationDevice.Magnetometer);
-
-
-        // @Public
         public override string ToString(int sequenceNumber)
         {
             return string.Format("AT*CALIB={0},{1}\r",

@@ -10,12 +10,10 @@ namespace Drones.ARDrone.Client.ATCommands
     /// <summary> This command controls the drone ﬂight motions. </summary>
     public class PCmdMagCommand : PCmdCommand
     {
-        // @Properties
+        // @Public
         public readonly float Psi;
         public readonly float Accuracy;
 
-
-        // @Public
         /// <summary> Constructor. </summary>
         ///
         /// <param name="flightMode"> The flight mode. </param>

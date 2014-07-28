@@ -14,13 +14,11 @@ namespace Drones.ARDrone.Client.ATCommands
     /// </summary>
     public class ConfigIdsCommand : ATCommand
     {
-        // @Properties
+        // @Public
         public readonly string SessionId;
         public readonly string UserId;
         public readonly string ApplicationId;
 
-
-        // @Public
         /// <summary> Constructor. </summary>
         ///
         /// <param name="sessionId">     Current session id. </param>

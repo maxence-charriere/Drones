@@ -9,11 +9,9 @@ namespace Drones.ARDrone.Client.ATCommands
     /// <summary> Reset communication watchdog. </summary>
     public class ComWdgCommand : ATCommand
     {
-        // @Properties
+        // @Public
         public static readonly ComWdgCommand Default = new ComWdgCommand();
         
-
-        // @Public
         public override string ToString(int sequenceNumber)
         {
             return string.Format("AT*COMWDG={0}\r", sequenceNumber);

@@ -100,7 +100,7 @@ namespace Drones.Infrastructure
 
 
         // @Private
-        object _locker = new object();
+        readonly object _locker = new object();
         CancellationTokenSource _cancellationTokenSource;
 
         void RunLoop(object obj)

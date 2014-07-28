@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\ARDrone2Client.cs" />
+    <Compile Include="Client\ARDroneClient.cs" />
     <Compile Include="Client\ATCommands\ATCommand.cs" />
     <Compile Include="Client\ATCommands\ATCommandSender.cs" />
     <Compile Include="Client\ATCommands\CalibCommand.cs" />
@@ -49,21 +49,37 @@
     <Compile Include="Client\ATCommands\CalibrationDevice.cs" />
     <Compile Include="Client\ATCommands\ConfigCommand.cs" />
     <Compile Include="Client\ATCommands\ConfigIdsCommand.cs" />
+    <Compile Include="Client\ATCommands\ControlCommand.cs" />
+    <Compile Include="Client\ATCommands\ControlMode.cs" />
     <Compile Include="Client\ATCommands\FlightMode.cs" />
     <Compile Include="Client\ATCommands\FTrimCommand.cs" />
     <Compile Include="Client\ATCommands\PCmdCommand.cs" />
     <Compile Include="Client\ATCommands\PCmdMagCommand.cs" />
     <Compile Include="Client\ATCommands\RefCommand.cs" />
     <Compile Include="Client\ATCommands\RefMode.cs" />
-    <Compile Include="Client\Navdata\Blocks\INativeBlock.cs" />
-    <Compile Include="Client\Navdata\Blocks\NavdataChecksum.cs" />
-    <Compile Include="Client\Navdata\Blocks\NavdataHeader.cs" />
-    <Compile Include="Client\Navdata\Blocks\NavdataOption.cs" />
-    <Compile Include="Client\Navdata\NavdataOptionTag.cs" />
+    <Compile Include="Client\Navigation\NavigationData.cs" />
+    <Compile Include="Client\Navigation\NavigationState.cs" />
+    <Compile Include="Data\INativeBlock.cs" />
+    <Compile Include="Data\Math\Matrix33.cs" />
+    <Compile Include="Data\Navdata\ControlState.cs" />
+    <Compile Include="Data\Navdata\DefAcc.cs" />
+    <Compile Include="Data\Navdata\DefGyro.cs" />
+    <Compile Include="Data\Navdata\DroneStateMask.cs" />
+    <Compile Include="Data\Navdata\NavdataChecksum.cs" />
+    <Compile Include="Data\Navdata\NavdataDemo.cs" />
+    <Compile Include="Data\Navdata\NavdataHeader.cs" />
+    <Compile Include="Data\Navdata\NavdataMagneto.cs" />
+    <Compile Include="Data\Navdata\NavdataOption.cs" />
+    <Compile Include="Data\Navdata\NavdataOptionTag.cs" />
+    <Compile Include="Data\Math\Vector31.cs" />
+    <Compile Include="Data\Navdata\NavdataRawMesures.cs" />
+    <Compile Include="Data\Navdata\NavdataTime.cs" />
+    <Compile Include="Data\Navdata\NavdataVideoStream.cs" />
+    <Compile Include="Data\Navdata\NavdataWifi.cs" />
+    <Compile Include="Extensions\ConcurrentQueueExtensions.cs" />
     <Compile Include="Extensions\ConversionExtensions.cs" />
-    <Compile Include="Client\Navdata\NavdataAcquisition.cs" />
-    <Compile Include="Client\Navdata\NavDataMode.cs" />
-    <Compile Include="Client\Navdata\NavdataPacket.cs" />
+    <Compile Include="Client\Navigation\NavdataAcquisition.cs" />
+    <Compile Include="Data\Navdata\NavdataPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

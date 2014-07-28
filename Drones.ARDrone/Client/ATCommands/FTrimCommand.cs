@@ -20,11 +20,9 @@ namespace Drones.ARDrone.Client.ATCommands
     /// </summary>
     public class FTrimCommand : ATCommand
     {
-        // @Properties
+        // @Public
         public static readonly FTrimCommand Default = new FTrimCommand();
 
-
-        // @Public
         public override string ToString(int sequenceNumber)
         {
             return string.Format("AT*FTRIM={0}\r", sequenceNumber);

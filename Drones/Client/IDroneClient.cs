@@ -13,8 +13,8 @@ namespace Drones.Client
         bool IsConnected { get; }
 
         // @Members
-        void Start();
-        void Stop();
+        Task<bool> ConnectAsync();
+        void Disconnect();
         void TakeOff();
         void Land();
         void Emergency();

@@ -9,12 +9,10 @@ namespace Drones.ARDrone.Client.ATCommands
     /// <summary> Sets an conﬁgurable option on the drone. </summary>
     public class ConfigCommand : ATCommand
     {
-        // @Command
+        // @Public
         public readonly string Name;
         public readonly string Value;
 
-
-        // @Public
         /// <summary> Constructor. </summary>
         ///
         /// <param name="name">  The name of the option to set. </param>

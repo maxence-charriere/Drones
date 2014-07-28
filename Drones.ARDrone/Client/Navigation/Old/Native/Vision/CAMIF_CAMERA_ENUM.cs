@@ -1,0 +1,20 @@
+﻿namespace Drones.ARDrone.Client.Navdata.Native.Vision
+{
+    public enum CAMIF_CAMERA_ENUM
+    {
+        CAMIF_CAMERA_LB = 0,
+
+        CAMIF_CAMERA_CRESYN,
+        CAMIF_CAMERA_VS6524,
+        CAMIF_CAMERA_OV7710,
+        CAMIF_CAMERA_OV7720,
+        CAMIF_CAMERA_OVTRULY,
+        CAMIF_CAMERA_OVTRULY_UPSIDE_DOWN_ONE_BLOCKLINE_LESS,
+        CAMIF_CAMERA_FILE,
+        CAMIF_CAMERA_OV7670,
+        CAMIF_CAMERA_OV9740,
+        CAMIF_CAMERA_SOC1040,
+
+        CAMIF_CAMERA_UB
+    }
+}

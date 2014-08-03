@@ -1,4 +1,5 @@
-﻿using Drones.Infrastructure;
+﻿using Drones.ARDrone.Data.Configuration;
+using Drones.Infrastructure;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -27,6 +28,22 @@ namespace Drones.ARDrone.Client.ATCommands
         public void Send(ATCommand command)
         {
             CommandQueue.Enqueue(command);
+        }
+
+        public void Send(Configuration config)
+        {
+            KeyValuePair<string, string> item;
+            while (config.Changes.TryDequeue(out item))
+            {
+                /*if (string.IsNullOrEmpty(config.Custom.SessionId) == false &&
+                    string.IsNullOrEmpty(config.Custom.ProfileId) == false &&
+                    string.IsNullOrEmpty(config.Custom.ApplicationId) == false)
+                {
+                    Send(new ConfigIdsCommand(config.Custom.SessionId, config.Custom.ProfileId, config.Custom.ApplicationId));
+                }*/
+
+                Send(new ConfigCommand(item.Key, item.Value));
+            }
         }
 
 

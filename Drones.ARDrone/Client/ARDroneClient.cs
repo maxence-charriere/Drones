@@ -1,11 +1,14 @@
 ﻿using Drones.ARDrone.Client.ATCommands;
 using Drones.ARDrone.Client.Navigation;
+using Drones.ARDrone.Data.Configuration;
 using Drones.ARDrone.Data.Navdata;
 using Drones.ARDrone.Extensions;
 using Drones.Client;
 using Drones.Infrastructure;
+using Drones.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -74,6 +77,19 @@ namespace Drones.ARDrone.Client
             }
         }
 
+        XBox360Input _xBox360Input = new XBox360Input();
+        public XBox360Input XBox360Input
+        {
+            get
+            {
+                return _xBox360Input;
+            }
+            set
+            {
+                _xBox360Input = value;
+            }
+        }
+
 
         // @Public
         public readonly string Hostname;
@@ -97,9 +113,15 @@ namespace Drones.ARDrone.Client
             // Launching workers.
             Start();
 
-            // ACK CONTROL MODE
-            
-            // CONFIG
+            Stopwatch swConnect = Stopwatch.StartNew();
+            while (swConnect.ElapsedMilliseconds < _connectTimeout)
+            {
+                if (IsConnected)
+                {
+                    return true;
+                }
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
             return false;
         }
 
@@ -112,27 +134,27 @@ namespace Drones.ARDrone.Client
 
         public void TakeOff()
         {
-            throw new NotImplementedException();
+            RequestedState = RequestedState.Fly;
         }
 
         public void Land()
         {
-            throw new NotImplementedException();
+            RequestedState = RequestedState.Land;
         }
 
         public void Emergency()
         {
-            throw new NotImplementedException();
+            RequestedState = RequestedState.Emergency;
         }
 
         public void EmergencyRecover()
         {
-            throw new NotImplementedException();
+            RequestedState = RequestedState.ResetEmergency;
         }
 
         public void Move(float roll, float pitch, float gaz, float yaw)
         {
-            throw new NotImplementedException();
+            ATCommandSender.Send(new PCmdCommand(FlightMode.Progressive, roll, pitch, gaz, yaw));
         }
 
 
@@ -179,6 +201,8 @@ namespace Drones.ARDrone.Client
         // @Private
         readonly object _navigationDataSync = new object();
         readonly object _stateRequestSync = new object();
+        Configuration _droneConfiguration = new Configuration();
+        const int _connectTimeout = 5000;
 
         void OnNavdataAcquisitionStarted()
         {
@@ -219,7 +243,8 @@ namespace Drones.ARDrone.Client
             if (navigationState.HasFlag(NavigationState.Bootstrap))
             {
                 ATCommandSender.CommandQueue.Flush();
-                // IMPLEMENT SETTING INIT.
+                _droneConfiguration.General.NavdataDemo = true;
+                ATCommandSender.Send(_droneConfiguration);
             }
 
             // Command.
@@ -237,7 +262,25 @@ namespace Drones.ARDrone.Client
             // Input.
             if (requestedState == RequestedState.None && navigationState.HasFlag(NavigationState.Flying))
             {
-                // IMPLEMENT INPUT MECHANISM.
+                bool isHovering = true;
+                if (XBox360Input.IsConnected)
+                {
+                    XBox360Input.Update();
+                    if (XBox360Input.IsMotionless == false)
+                    {
+                        isHovering = false;
+                        ATCommandSender.Send(new PCmdCommand(FlightMode.Progressive,
+                            XBox360Input.Roll,
+                            XBox360Input.Pitch,
+                            XBox360Input.Gaz,
+                            XBox360Input.Yaw));
+                    }
+                }
+
+                if (isHovering)
+                {
+                    ATCommandSender.Send(new PCmdCommand(FlightMode.Hover, 0, 0, 0, 0));
+                }
             }
 
             // State transitions.
@@ -246,7 +289,7 @@ namespace Drones.ARDrone.Client
                 case RequestedState.None:
                     return;
                 case RequestedState.Land:
-                    if (navigationState.HasFlag(NavigationState.Flying)
+                    if ((navigationState.HasFlag(NavigationState.Flying) || navigationState.HasFlag(NavigationState.Takeoff)) 
                         && navigationState.HasFlag(NavigationState.Landing) == false)
                     {
                         ATCommandSender.Send(RefCommand.Land);
@@ -259,12 +302,14 @@ namespace Drones.ARDrone.Client
                 case RequestedState.Fly:
                     if (navigationState.HasFlag(NavigationState.Emergency))
                     {
+                        ATCommandSender.Send(FTrimCommand.Default);
                         ATCommandSender.Send(RefCommand.Emergency);
                     }
-                    if (navigationState.HasFlag(NavigationState.Takeoff) == false
+                    if (navigationState.HasFlag(NavigationState.Landed)
+                        && navigationState.HasFlag(NavigationState.Takeoff) == false
                         && navigationState.HasFlag(NavigationState.Emergency) == false)
                     {
-                        ATCommandSender.Send(RefCommand.Land);
+                        ATCommandSender.Send(RefCommand.TakeOff);
                     }
                     else
                     {
@@ -282,6 +327,7 @@ namespace Drones.ARDrone.Client
                     }
                     break;
                 case RequestedState.ResetEmergency:
+                    ATCommandSender.Send(FTrimCommand.Default);
                     ATCommandSender.Send(RefCommand.Emergency);
                     RequestedState = RequestedState.None;
                     break;

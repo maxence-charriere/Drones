@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Drones.Client
 {
-    public interface IDroneClient
+    public interface IDroneClient : IDisposable
     {
         // @Properties
         bool IsActive { get; }

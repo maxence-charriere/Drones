@@ -3,3 +3,6 @@ obj
 
 *.suo
 /Drones.ARDrone/Client/Navdata/Old
+/packages
+/Drones/packages.config
+/Drones.Client

@@ -56,27 +56,27 @@ namespace Drones.ARDrone.Data.Navdata
                         var option = NavdataOption.FromByteArray(Data, position);
                         switch ((NavdataOptionTag)option.Tag)
                         {
-                            case NavdataOptionTag.NavdataDemo:
+                            case NavdataOptionTag.Demo:
                                 Demo = NavdataDemo.FromByteArray(Data, position);
                                 position += Demo.Size;
                                 break;
-                            case NavdataOptionTag.NavdataRawMesures:
+                            case NavdataOptionTag.RawMesures:
                                 RawMesures = NavdataRawMesures.FromByteArray(Data, position);
                                 position += RawMesures.Size;
                                 break;
-                            case NavdataOptionTag.NavdataChecksum:
+                            case NavdataOptionTag.Checksum:
                                 Checksum = NavdataChecksum.FromByteArray(Data, position);
                                 position += Checksum.Size;
                                 break;
-                            case NavdataOptionTag.NavdataMagneto:
+                            case NavdataOptionTag.Magneto:
                                 Magneto = NavdataMagneto.FromByteArray(Data, position);
                                 position += Magneto.Size;
                                 break;
-                            case NavdataOptionTag.NavdataVideoStream:
+                            case NavdataOptionTag.VideoStream:
                                 VideoStream = NavdataVideoStream.FromByteArray(Data, position);
                                 position += VideoStream.Size;
                                 break;
-                            case NavdataOptionTag.NavdataWifi:
+                            case NavdataOptionTag.Wifi:
                                 Wifi = NavdataWifi.FromByteArray(Data, position);
                                 position += Wifi.Size;
                                 break;

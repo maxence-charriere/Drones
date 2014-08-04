@@ -145,7 +145,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public GeneralSection(Configuration config)
+        public GeneralSection(Config config)
             : base(config, "general")
         {
         }

@@ -43,7 +43,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public CustomSection(Configuration config)
+        public CustomSection(Config config)
             : base(config, "custom")
         {
         }

@@ -59,7 +59,7 @@
     <Compile Include="Client\ATCommands\RefMode.cs" />
     <Compile Include="Client\Navigation\NavigationData.cs" />
     <Compile Include="Client\Navigation\NavigationState.cs" />
-    <Compile Include="Data\Configuration\Configuration.cs" />
+    <Compile Include="Data\Configuration\Config.cs" />
     <Compile Include="Data\Configuration\FlightAnimation.cs" />
     <Compile Include="Data\Configuration\FlightAnimationType.cs" />
     <Compile Include="Data\Configuration\LedAnimation.cs" />

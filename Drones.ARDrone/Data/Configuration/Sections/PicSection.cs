@@ -24,7 +24,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public PicSection(Configuration config)
+        public PicSection(Config config)
             : base(config, "pic")
         {
         }

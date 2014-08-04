@@ -7,7 +7,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
     public class SectionBase
     {
         // @Public
-        public SectionBase(Configuration config, string name)
+        public SectionBase(Config config, string name)
         {
             _config = config;
             _name = name;
@@ -161,7 +161,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Private
-        readonly Configuration _config;
+        readonly Config _config;
         readonly string _name;
 
         string GetFullKey(string s)

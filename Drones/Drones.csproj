@@ -48,6 +48,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\Configuration\HullType.cs" />
+    <Compile Include="Client\Configuration\Settings.cs" />
     <Compile Include="Client\IDroneClient.cs" />
     <Compile Include="Client\Navigation\Battery.cs" />
     <Compile Include="Client\Navigation\CommunicationType.cs" />

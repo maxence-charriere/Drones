@@ -1,4 +1,5 @@
 ﻿using Drones.ARDrone.Data.Configuration.Sections;
+using Drones.Client.Configuration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Drones.ARDrone.Data.Configuration
 {
-    public class Configuration
+    public class Config
     {
         // @Public
         public Dictionary<string, string> Items;
@@ -23,7 +24,7 @@ namespace Drones.ARDrone.Data.Configuration
         public readonly GpsSection Gps;
         public readonly CustomSection Custom;
 
-        public Configuration()
+        public Config()
         {
             Items = new Dictionary<string, string>();
             Changes = new ConcurrentQueue<KeyValuePair<string, string>>();
@@ -41,9 +42,18 @@ namespace Drones.ARDrone.Data.Configuration
             Custom = new CustomSection(this);
         }
 
-        public static Configuration Parse(string input)
+        public void Update(Settings settings)
         {
-            var configuration = new Configuration();
+            Control.ControlVzMax = (Convert.ToSingle(settings.VerticalThrust) * 2000) / 100;
+            Control.EulerAngleMax = (Convert.ToSingle(settings.HorizontalThrust) * 0.52f) / 100;
+            Control.ControlYaw = (Convert.ToSingle(settings.YawThrust) * 6.11f) / 100;
+            Control.AltitudeMax = Convert.ToInt32(settings.MaximumAltitude * 1000);
+            Control.FlightWithoutShell = settings.HullType == HullType.Outdoor ? true : false;
+        }
+
+        public static Config Parse(string input)
+        {
+            var configuration = new Config();
 
             MatchCollection matches = _regexKeyValue.Matches(input);
             foreach (Match match in matches)

@@ -4,6 +4,8 @@ using Drones.ARDrone.Data.Configuration;
 using Drones.ARDrone.Data.Navdata;
 using Drones.ARDrone.Extensions;
 using Drones.Client;
+using Drones.Client.Configuration;
+using Drones.Client.Navigation;
 using Drones.Infrastructure;
 using Drones.Input;
 using System;
@@ -19,7 +21,7 @@ namespace Drones.ARDrone.Client
     public class ARDroneClient : WorkerBase, IDroneClient
     {
         // @Events
-        public event Action<NavigationData> NavigationDataAcquired;
+        public event Action<INavigationData> NavigationDataAcquired;
 
 
         // @Properties
@@ -39,8 +41,8 @@ namespace Drones.ARDrone.Client
             }
         }
 
-        NavigationData _currentNavigationData;
-        public NavigationData CurrentNavigationData
+        INavigationData _currentNavigationData;
+        public INavigationData CurrentNavigationData
         {
             get
             {
@@ -90,6 +92,29 @@ namespace Drones.ARDrone.Client
             }
         }
 
+        Settings _settings;
+        public Settings Settings
+        {
+            get
+            {
+                lock (_settingsSync)
+                {
+                    return _settings;
+                }
+            }
+            set
+            {
+                if (_settings != value)
+                {
+                    lock (_settingsSync)
+                    {
+                        _settings = value;
+                        _droneConfiguration.Update(_settings);
+                    }
+                }
+            }
+        }
+
 
         // @Public
         public readonly string Hostname;
@@ -110,6 +135,13 @@ namespace Drones.ARDrone.Client
 
         public async Task<bool> ConnectAsync()
         {
+            Debug.WriteLine(string.Format("Connect to drone on {0}...", Hostname));
+            if (IsAlive)
+            {
+                Debug.WriteLine("Connected.");
+                return true;
+            }
+
             // Launching workers.
             Start();
 
@@ -118,6 +150,8 @@ namespace Drones.ARDrone.Client
             {
                 if (IsConnected)
                 {
+                    await InitMulticonfigurationAsync();
+                    Debug.WriteLine("Connected.");
                     return true;
                 }
                 await Task.Delay(TimeSpan.FromSeconds(1));
@@ -127,33 +161,40 @@ namespace Drones.ARDrone.Client
 
         public void Disconnect()
         {
+            Debug.WriteLine("Disconnect...");
             Stop();
             NavdataAcquisition.Stop();
             ATCommandSender.Stop();
+            Debug.WriteLine("Disconnected.");
         }
 
         public void TakeOff()
         {
+            Debug.WriteLine("Take off.");
             RequestedState = RequestedState.Fly;
         }
 
         public void Land()
         {
+            Debug.WriteLine("Land.");
             RequestedState = RequestedState.Land;
         }
 
         public void Emergency()
         {
+            Debug.WriteLine("Emergency.");
             RequestedState = RequestedState.Emergency;
         }
 
         public void EmergencyRecover()
         {
+            Debug.WriteLine("Recover emergency.");
             RequestedState = RequestedState.ResetEmergency;
         }
 
         public void Move(float roll, float pitch, float gaz, float yaw)
         {
+            Debug.WriteLine(string.Format("Move (p: {0}, roll: {1}, gaz: {2}, yaw: {3}).)", pitch, roll, gaz, yaw));
             ATCommandSender.Send(new PCmdCommand(FlightMode.Progressive, roll, pitch, gaz, yaw));
         }
 
@@ -170,7 +211,7 @@ namespace Drones.ARDrone.Client
 
                 if (ATCommandSender.IsAlive && CurrentNavigationData != null)
                 {
-                    ProcessCommands(RequestedState, CurrentNavigationData.State);
+                    ProcessCommands(RequestedState, ((NavigationData)CurrentNavigationData).State);
                 }
                 Thread.Sleep(25);
             }
@@ -199,10 +240,12 @@ namespace Drones.ARDrone.Client
 
 
         // @Private
+        const int _connectTimeout = 5000;
+        const int _ackControlAndWaitForConfirmationTimeout = 1000;
         readonly object _navigationDataSync = new object();
         readonly object _stateRequestSync = new object();
-        Configuration _droneConfiguration = new Configuration();
-        const int _connectTimeout = 5000;
+        readonly object _settingsSync = new object();
+        Config _droneConfiguration = new Config();
 
         void OnNavdataAcquisitionStarted()
         {
@@ -237,6 +280,58 @@ namespace Drones.ARDrone.Client
             }
         }
 
+        async Task InitMulticonfigurationAsync()
+        {
+            Debug.WriteLine("Initializing multiconfiguration...");
+            await AckControlAndWaitForConfirmationAsync();
+            _droneConfiguration.Custom.SessionId = Config.NewId();
+            ATCommandSender.Send(_droneConfiguration);
+
+            await AckControlAndWaitForConfirmationAsync();
+            _droneConfiguration.Custom.ProfileId = Config.NewId();
+            ATCommandSender.Send(_droneConfiguration);
+
+            await AckControlAndWaitForConfirmationAsync();
+            _droneConfiguration.Custom.ApplicationId = Config.NewId();
+            ATCommandSender.Send(_droneConfiguration);
+
+            await AckControlAndWaitForConfirmationAsync();
+            Debug.WriteLine("Multiconfiguration initalized.");
+        }
+
+        async Task<bool> AckControlAndWaitForConfirmationAsync()
+        {
+            Stopwatch swTimeout = Stopwatch.StartNew();
+
+            var state = NavigationState.Unknown;
+            Action<INavigationData> onNavigationData = nd => state = ((NavigationData)nd).State;
+            NavigationDataAcquired += onNavigationData;
+            try
+            {
+                bool ackControlSent = false;
+                while (swTimeout.ElapsedMilliseconds < _ackControlAndWaitForConfirmationTimeout)
+                {
+                    if (state.HasFlag(NavigationState.Command))
+                    {
+                        ATCommandSender.Send(ControlCommand.AckControlMode);
+                        ackControlSent = true;
+                    }
+
+                    if (ackControlSent && state.HasFlag(NavigationState.Command) == false)
+                    {
+                        return true;
+                    }
+                    await Task.Delay(5);
+                }
+                return false;
+            }
+            finally
+            {
+                NavigationDataAcquired -= onNavigationData;
+                Debug.WriteLine(string.Format("AckCommand done in {0} ms.", swTimeout.ElapsedMilliseconds));
+            }
+        }
+
         void ProcessCommands(RequestedState requestedState, NavigationState navigationState)
         {
             // Bootstrap.
@@ -247,16 +342,16 @@ namespace Drones.ARDrone.Client
                 ATCommandSender.Send(_droneConfiguration);
             }
 
-            // Command.
-            if (navigationState.HasFlag(NavigationState.Command))
-            {
-                ATCommandSender.Send(ControlCommand.AckControlMode);
-            }
-
             // Watchdog.
             if (navigationState.HasFlag(NavigationState.Watchdog))
             {
                 ATCommandSender.Send(ComWdgCommand.Default);
+            }
+
+            // Config.
+            if (_droneConfiguration.Changes.IsEmpty == false)
+            {
+                ATCommandSender.Send(_droneConfiguration);
             }
 
             // Input.

@@ -13,7 +13,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public UserboxSection(Configuration config)
+        public UserboxSection(Config config)
             : base(config, "userbox")
         {
         }

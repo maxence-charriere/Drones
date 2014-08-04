@@ -37,7 +37,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public NetworkSection(Configuration config)
+        public NetworkSection(Config config)
             : base(config, "network")
         {
         }

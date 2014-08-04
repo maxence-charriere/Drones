@@ -13,7 +13,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public LedsSection(Configuration config)
+        public LedsSection(Config config)
             : base(config, "leds")
         {
         }

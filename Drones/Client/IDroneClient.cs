@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Drones.Client.Configuration;
+using Drones.Client.Navigation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +10,14 @@ namespace Drones.Client
 {
     public interface IDroneClient : IDisposable
     {
+        // @Events
+        event Action<INavigationData> NavigationDataAcquired;
+
         // @Properties
         bool IsActive { get; }
         bool IsConnected { get; }
+        Settings Settings { get; set;}
+
 
         // @Members
         Task<bool> ConnectAsync();

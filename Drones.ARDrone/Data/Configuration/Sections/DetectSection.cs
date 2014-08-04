@@ -49,7 +49,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public DetectSection(Configuration config)
+        public DetectSection(Config config)
             : base(config, "detect")
         {
         }

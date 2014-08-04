@@ -22,7 +22,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public GpsSection(Configuration config)
+        public GpsSection(Config config)
             : base(config, "gps")
         {
         }

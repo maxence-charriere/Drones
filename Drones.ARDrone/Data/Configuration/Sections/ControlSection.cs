@@ -196,7 +196,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public ControlSection(Configuration config)
+        public ControlSection(Config config)
             : base(config, "control")
         {
         }

@@ -30,17 +30,17 @@ namespace Drones.ARDrone.Client.ATCommands
             CommandQueue.Enqueue(command);
         }
 
-        public void Send(Configuration config)
+        public void Send(Config config)
         {
             KeyValuePair<string, string> item;
             while (config.Changes.TryDequeue(out item))
             {
-                /*if (string.IsNullOrEmpty(config.Custom.SessionId) == false &&
+                if (string.IsNullOrEmpty(config.Custom.SessionId) == false &&
                     string.IsNullOrEmpty(config.Custom.ProfileId) == false &&
                     string.IsNullOrEmpty(config.Custom.ApplicationId) == false)
                 {
                     Send(new ConfigIdsCommand(config.Custom.SessionId, config.Custom.ProfileId, config.Custom.ApplicationId));
-                }*/
+                }
 
                 Send(new ConfigCommand(item.Key, item.Value));
             }

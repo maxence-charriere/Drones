@@ -25,7 +25,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
 
 
         // @Public
-        public SyslogSection(Configuration config)
+        public SyslogSection(Config config)
             : base(config, "syslog")
         {
         }

@@ -92,7 +92,7 @@ namespace Drones.ARDrone.Data.Configuration.Sections
         }
 
         // @Public
-        public VideoSection(Configuration config)
+        public VideoSection(Config config)
             : base(config, "video")
         {
         }

@@ -50,6 +50,7 @@ namespace Drones.ARDrone.Client.ATCommands
         // @Protected
         protected override void Loop(CancellationToken token)
         {
+            System.Diagnostics.Debug.WriteLine("ATCommandSender started.");
             using (var udpClient = new UdpClient(CommandPort))
             {
                 // Connection.
@@ -81,6 +82,7 @@ namespace Drones.ARDrone.Client.ATCommands
                     Thread.Sleep(5);
                 }
             }
+            System.Diagnostics.Debug.WriteLine("ATCommandSender stopped.");
         }
 
 

@@ -1,5 +1,6 @@
 ﻿using Drones.ARDrone.Client.ATCommands;
 using Drones.ARDrone.Client.Navigation;
+using Drones.ARDrone.Client.Video;
 using Drones.ARDrone.Data.Configuration;
 using Drones.ARDrone.Data.Navdata;
 using Drones.ARDrone.Extensions;
@@ -22,6 +23,7 @@ namespace Drones.ARDrone.Client
     {
         // @Events
         public event Action<INavigationData> NavigationDataAcquired;
+        public event Action<VideoPacket> VideoPacketAcquired;
 
 
         // @Properties
@@ -37,7 +39,7 @@ namespace Drones.ARDrone.Client
         {
             get
             {
-                return NavdataAcquisition.IsAcquiring;
+                return NavdataReceiver.IsAcquiring;
             }
         }
 
@@ -118,19 +120,23 @@ namespace Drones.ARDrone.Client
 
         // @Public
         public readonly string Hostname;
-        public readonly NavdataAcquisition NavdataAcquisition;
+        public readonly NavdataReceiver NavdataReceiver;
         public readonly ATCommandSender ATCommandSender;
+        public readonly VideoReceiver VideoReceiver;
 
         public ARDroneClient(string hostname = "192.168.1.1")
         {
             Hostname = hostname;
-            NavdataAcquisition = new NavdataAcquisition(Hostname);
-            NavdataAcquisition.NavdataAcquisitionStarted += OnNavdataAcquisitionStarted;
-            NavdataAcquisition.NavdataAcquisitionStoped += OnNavdataAcquisitionStopped;
-            NavdataAcquisition.NavdataPacketAcquired += OnNavdataPacketAcquired;
+            NavdataReceiver = new NavdataReceiver(Hostname);
+            NavdataReceiver.NavdataAcquisitionStarted += OnNavdataAcquisitionStarted;
+            NavdataReceiver.NavdataAcquisitionStoped += OnNavdataAcquisitionStopped;
+            NavdataReceiver.NavdataPacketAcquired += OnNavdataPacketAcquired;
 
             ATCommandSender = new ATCommandSender(Hostname);
             CurrentNavigationData = new NavigationData();
+
+            VideoReceiver = new VideoReceiver(Hostname);
+            VideoReceiver.VideoPacketAcquired += RaiseVideoPacketAcquired;
         }
 
         public async Task<bool> ConnectAsync()
@@ -163,7 +169,7 @@ namespace Drones.ARDrone.Client
         {
             Debug.WriteLine("Disconnect...");
             Stop();
-            NavdataAcquisition.Stop();
+            NavdataReceiver.Stop();
             ATCommandSender.Stop();
             Debug.WriteLine("Disconnected.");
         }
@@ -202,24 +208,42 @@ namespace Drones.ARDrone.Client
         // @Protected
         protected override void Loop(CancellationToken token)
         {
-            while (!token.IsCancellationRequested)
+            while (token.IsCancellationRequested == false)
             {
-                if (!NavdataAcquisition.IsAlive)
+                // Starts or restarts Navdata receiver.
+                if (NavdataReceiver.IsAlive == false)
                 {
-                    NavdataAcquisition.Start();
+                    NavdataReceiver.Start();
+                }
+                else
+                {
+                    /*// Restarts Command sender.
+                    if (ATCommandSender.IsAlive == false)
+                    {
+                        ATCommandSender.Start();
+                    }
+
+                    // Restarts Video receiver.
+                    if (VideoReceiver.IsAlive == false)
+                    {
+                        //VideoReceiver.Start();
+                    }*/
                 }
 
+                // Process commands.
                 if (ATCommandSender.IsAlive && CurrentNavigationData != null)
                 {
                     ProcessCommands(RequestedState, ((NavigationData)CurrentNavigationData).State);
                 }
+
+                
                 Thread.Sleep(25);
             }
 
             // Stop Navdata acquisition.
-            if (NavdataAcquisition.IsAlive)
+            if (NavdataReceiver.IsAlive)
             {
-                NavdataAcquisition.Stop();
+                NavdataReceiver.Stop();
             }
 
             // Stop sending AT commands.
@@ -234,8 +258,9 @@ namespace Drones.ARDrone.Client
         {
             base.DisposeOverride();
 
-            NavdataAcquisition.Dispose();
+            NavdataReceiver.Dispose();
             ATCommandSender.Dispose();
+            VideoReceiver.Dispose();
         }
 
 
@@ -250,16 +275,22 @@ namespace Drones.ARDrone.Client
         void OnNavdataAcquisitionStarted()
         {
             // Starting workers.
-            if (!ATCommandSender.IsAlive)
+            if (ATCommandSender.IsAlive == false)
             {
                 ATCommandSender.Start();
             }
+            if (VideoReceiver.IsAlive == false)
+            {
+                VideoReceiver.Start();
+            }
+
         }
 
         void OnNavdataAcquisitionStopped()
         {
             // Stopping workers.
             ATCommandSender.Stop();
+            VideoReceiver.Stop();
         }
 
         void OnNavdataPacketAcquired(NavdataPacket packet)
@@ -277,6 +308,14 @@ namespace Drones.ARDrone.Client
             if (NavigationDataAcquired != null)
             {
                 NavigationDataAcquired(navigationData);
+            }
+        }
+
+        void RaiseVideoPacketAcquired(VideoPacket videoPacket)
+        {
+            if (VideoPacketAcquired != null)
+            {
+                VideoPacketAcquired(videoPacket);
             }
         }
 

@@ -59,6 +59,7 @@
     <Compile Include="Client\ATCommands\RefMode.cs" />
     <Compile Include="Client\Navigation\NavigationData.cs" />
     <Compile Include="Client\Navigation\NavigationState.cs" />
+    <Compile Include="Client\Video\VideoReceiver.cs" />
     <Compile Include="Data\Configuration\Config.cs" />
     <Compile Include="Data\Configuration\FlightAnimation.cs" />
     <Compile Include="Data\Configuration\FlightAnimationType.cs" />
@@ -99,9 +100,13 @@
     <Compile Include="Data\Navdata\NavdataTime.cs" />
     <Compile Include="Data\Navdata\NavdataVideoStream.cs" />
     <Compile Include="Data\Navdata\NavdataWifi.cs" />
+    <Compile Include="Data\Video\ParrotVideoEncapsulation.cs" />
+    <Compile Include="Data\Video\ParrotVideoEncapsulationFrameTypes.cs" />
+    <Compile Include="Client\Video\VideoFrameType.cs" />
+    <Compile Include="Client\Video\VideoPacket.cs" />
     <Compile Include="Extensions\ConcurrentQueueExtensions.cs" />
     <Compile Include="Extensions\ConversionExtensions.cs" />
-    <Compile Include="Client\Navigation\NavdataAcquisition.cs" />
+    <Compile Include="Client\Navigation\NavdataReceiver.cs" />
     <Compile Include="Data\Navdata\NavdataPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

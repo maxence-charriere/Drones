@@ -36,9 +36,9 @@ namespace Drones.ARDrone.Client.Navigation
             {
                 navigationData.UpdateState(packet.Demo.State);
 
-                navigationData.Pitch = _degreeToRadian * (packet.Demo.Theta / 1000.0f);
-                navigationData.Roll = _degreeToRadian * (packet.Demo.Phi / 1000.0f);
-                navigationData.Yaw = _degreeToRadian * (packet.Demo.Psi / 1000.0f);
+                navigationData.Pitch = packet.Demo.Theta * 1000;
+                navigationData.Roll = packet.Demo.Phi * 1000;
+                navigationData.Yaw = packet.Demo.Psi * 1000;
                 navigationData.Altitude = new Distance(packet.Demo.Altitude / 100.0f);
 
                 navigationData.Speed = new Speed()

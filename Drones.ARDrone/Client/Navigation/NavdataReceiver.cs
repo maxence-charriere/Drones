@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Drones.ARDrone.Client.Navigation
 {
-    public class NavdataAcquisition : WorkerBase
+    public class NavdataReceiver : WorkerBase
     {
         // @Event
         public event Action NavdataAcquisitionStarted;
@@ -34,7 +34,7 @@ namespace Drones.ARDrone.Client.Navigation
         public const int NavdataTimeout = 2000;
         public readonly string Hostname;
 
-        public NavdataAcquisition(string hostname)
+        public NavdataReceiver(string hostname)
         {
             Hostname = hostname;
         }
@@ -43,6 +43,7 @@ namespace Drones.ARDrone.Client.Navigation
         // @Protected
         protected override void Loop(CancellationToken token)
         {
+            System.Diagnostics.Debug.WriteLine("NavdataReceiver started.");
             try
             {
                 IsAcquiring = false;
@@ -87,6 +88,7 @@ namespace Drones.ARDrone.Client.Navigation
                     IsAcquiring = false;
                     RaiseNavdataAcquisitionStoped();
                 }
+                System.Diagnostics.Debug.WriteLine("NavdataReceiver stopped.");
             }
         }
 

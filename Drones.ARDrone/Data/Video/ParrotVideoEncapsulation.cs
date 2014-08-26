@@ -186,6 +186,7 @@ namespace Drones.ARDrone.Data.Video
                         block.reserved3 = reader.ReadBytes(12);
 
                         videoEncapsulation = block;
+                        //System.Diagnostics.Debug.WriteLine(string.Format("VideoEncapsulationSize({0}/{1})", block.HeaderSize, BlockSize));
                         return true;
                     }
                     videoEncapsulation = null;

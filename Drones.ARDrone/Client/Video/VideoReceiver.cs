@@ -35,7 +35,7 @@ namespace Drones.ARDrone.Client.Video
                     var buffer = new byte[FrameBufferSize];
                     int position = 0;
                     int offset = 0;
-                    VideoPacket currentPacket = null;
+                    VideoPacket? currentPacket = null;
 
                     while (token.IsCancellationRequested == false)
                     {
@@ -46,7 +46,7 @@ namespace Drones.ARDrone.Client.Video
                             if (ParrotVideoEncapsulation.TryParse(out pve, buffer, (uint)position))
                             {
                                 currentPacket = VideoPacket.FromParrotVideoEncapsulation(pve);
-                                position += pve.Size;
+                                position += pve.HeaderSize;
                             }
                             else
                             {
@@ -55,11 +55,11 @@ namespace Drones.ARDrone.Client.Video
                         }
 
                         // Frame case.
-                        else if (currentPacket != null && (offset - position) >= currentPacket.Data.Length)
+                        else if (currentPacket != null && (offset - position) >= currentPacket.Value.Data.Length)
                         {
-                            Array.Copy(buffer, position, currentPacket.Data, 0, currentPacket.Data.Length);
-                            position += currentPacket.Data.Length;
-                            RaiseVideoPacketAcquired(currentPacket);
+                            Array.Copy(buffer, position, currentPacket.Value.Data, 0, currentPacket.Value.Data.Length);
+                            position += currentPacket.Value.Data.Length;
+                            RaiseVideoPacketAcquired(currentPacket.Value);
                             currentPacket = null;
 
                             // Clean buffer.

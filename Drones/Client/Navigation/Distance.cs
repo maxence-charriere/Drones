@@ -1,8 +1,9 @@
 ﻿using Drones.Infrastructure;
+using System;
 
 namespace Drones.Client.Navigation
 {
-    public class Distance : ModelBase
+    public class Distance : ModelBase, IComparable<Distance>, IEquatable<Distance>
     {
         // @Properties
         double _value = 0;
@@ -47,21 +48,38 @@ namespace Drones.Client.Navigation
             MeasurementUnit = measurementUnit;
         }
 
-        public void ChangeMeasurementUnit(DistanceMeasurementUnit measurementUnit)
+        public Distance ChangeMeasurementUnit(DistanceMeasurementUnit measurementUnit)
         {
+            var distance = new Distance(Value, MeasurementUnit);
+
             switch (measurementUnit)
             {
                 case DistanceMeasurementUnit.Meters:
+                    distance.ToMeters();
                     break;
                 case DistanceMeasurementUnit.Kilometers:
+                    distance.ToKilometers();
                     break;
                 case DistanceMeasurementUnit.Miles:
+                    distance.ToMiles();
                     break;
                 case DistanceMeasurementUnit.Feet:
+                    distance.ToFeet();
                     break;
                 default:
                     break;
             }
+            return distance;
+        }
+
+        public bool Equals(Distance other)
+        {
+            return Value == other.ChangeMeasurementUnit(MeasurementUnit).Value;
+        }
+
+        public int CompareTo(Distance other)
+        {
+            return Convert.ToInt32(Value - other.ChangeMeasurementUnit(MeasurementUnit).Value);
         }
 
 

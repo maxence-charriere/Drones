@@ -1,5 +1,7 @@
 ﻿using Drones.Client.Configuration;
 using Drones.Client.Navigation;
+using Drones.Client.Video;
+using Drones.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +14,14 @@ namespace Drones.Client
     {
         // @Events
         event Action<INavigationData> NavigationDataAcquired;
+        event Action<VideoFrame> VideoFrameDecoded;
 
         // @Properties
         bool IsActive { get; }
         bool IsConnected { get; }
-        Settings Settings { get; set;}
+        INavigationData CurrentNavigationData { get; }
+        Settings Settings { get; set; }
+        XBox360Input XBox360Input { get; set; }
 
 
         // @Members
@@ -26,6 +31,9 @@ namespace Drones.Client
         void Land();
         void Emergency();
         void EmergencyRecover();
+        void CalibrateMagneto();
+        void SwitchVideoChannel();
         void Move(float roll, float pitch, float gaz, float yaw);
+        Task FlipAsync(FlipType type);
     }
 }

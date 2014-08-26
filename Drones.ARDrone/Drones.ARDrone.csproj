@@ -20,7 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,7 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -59,6 +59,11 @@
     <Compile Include="Client\ATCommands\RefMode.cs" />
     <Compile Include="Client\Navigation\NavigationData.cs" />
     <Compile Include="Client\Navigation\NavigationState.cs" />
+    <Compile Include="Client\Video\VideoConverter.cs" />
+    <Compile Include="Client\Video\VideoConverterException.cs" />
+    <Compile Include="Client\Video\VideoDecoder.cs" />
+    <Compile Include="Client\Video\VideoDecoderException.cs" />
+    <Compile Include="Client\Video\VideoDecoderWorker.cs" />
     <Compile Include="Client\Video\VideoReceiver.cs" />
     <Compile Include="Data\Configuration\Config.cs" />
     <Compile Include="Data\Configuration\FlightAnimation.cs" />
@@ -96,21 +101,29 @@
     <Compile Include="Data\Navdata\NavdataOption.cs" />
     <Compile Include="Data\Navdata\NavdataOptionTag.cs" />
     <Compile Include="Data\Math\Vector31.cs" />
+    <Compile Include="Data\Navdata\NavdataPwn.cs" />
     <Compile Include="Data\Navdata\NavdataRawMesures.cs" />
     <Compile Include="Data\Navdata\NavdataTime.cs" />
     <Compile Include="Data\Navdata\NavdataVideoStream.cs" />
     <Compile Include="Data\Navdata\NavdataWifi.cs" />
+    <Compile Include="Data\Navdata\NavdataWind.cs" />
     <Compile Include="Data\Video\ParrotVideoEncapsulation.cs" />
     <Compile Include="Data\Video\ParrotVideoEncapsulationFrameTypes.cs" />
-    <Compile Include="Client\Video\VideoFrameType.cs" />
-    <Compile Include="Client\Video\VideoPacket.cs" />
+    <Compile Include="Data\Video\VideoFrameType.cs" />
+    <Compile Include="Data\Video\VideoPacket.cs" />
+    <Compile Include="Client\Video\VideoPacketDecoder.cs" />
     <Compile Include="Extensions\ConcurrentQueueExtensions.cs" />
     <Compile Include="Extensions\ConversionExtensions.cs" />
     <Compile Include="Client\Navigation\NavdataReceiver.cs" />
     <Compile Include="Data\Navdata\NavdataPacket.cs" />
+    <Compile Include="Extensions\PixelFormatExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\AR.Drone\FFmpeg.AutoGen\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj">
+      <Project>{a536b02a-b0b1-4753-8328-17369ef09976}</Project>
+      <Name>FFmpeg.AutoGen</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Drones\Drones.csproj">
       <Project>{e6843a4f-b538-4bc9-9310-015967a4e7ed}</Project>
       <Name>Drones</Name>

@@ -3,10 +3,12 @@ using Drones.ARDrone.Client.Navigation;
 using Drones.ARDrone.Client.Video;
 using Drones.ARDrone.Data.Configuration;
 using Drones.ARDrone.Data.Navdata;
+using Drones.ARDrone.Data.Video;
 using Drones.ARDrone.Extensions;
 using Drones.Client;
 using Drones.Client.Configuration;
 using Drones.Client.Navigation;
+using Drones.Client.Video;
 using Drones.Infrastructure;
 using Drones.Input;
 using System;
@@ -23,7 +25,7 @@ namespace Drones.ARDrone.Client
     {
         // @Events
         public event Action<INavigationData> NavigationDataAcquired;
-        public event Action<VideoPacket> VideoPacketAcquired;
+        public event Action<VideoFrame> VideoFrameDecoded;
 
 
         // @Properties
@@ -81,6 +83,26 @@ namespace Drones.ARDrone.Client
             }
         }
 
+        Settings _settings;
+        public Settings Settings
+        {
+            get
+            {
+                lock (_settingsSync)
+                {
+                    return _settings;
+                }
+            }
+            set
+            {
+                lock (_settingsSync)
+                {
+                    _settings = value;
+                    _droneConfiguration.Update(_settings);
+                }
+            }
+        }
+
         XBox360Input _xBox360Input = new XBox360Input();
         public XBox360Input XBox360Input
         {
@@ -94,35 +116,13 @@ namespace Drones.ARDrone.Client
             }
         }
 
-        Settings _settings;
-        public Settings Settings
-        {
-            get
-            {
-                lock (_settingsSync)
-                {
-                    return _settings;
-                }
-            }
-            set
-            {
-                if (_settings != value)
-                {
-                    lock (_settingsSync)
-                    {
-                        _settings = value;
-                        _droneConfiguration.Update(_settings);
-                    }
-                }
-            }
-        }
-
 
         // @Public
         public readonly string Hostname;
         public readonly NavdataReceiver NavdataReceiver;
         public readonly ATCommandSender ATCommandSender;
         public readonly VideoReceiver VideoReceiver;
+        public readonly VideoDecoderWorker VideoDecoderWorker;
 
         public ARDroneClient(string hostname = "192.168.1.1")
         {
@@ -136,7 +136,10 @@ namespace Drones.ARDrone.Client
             CurrentNavigationData = new NavigationData();
 
             VideoReceiver = new VideoReceiver(Hostname);
-            VideoReceiver.VideoPacketAcquired += RaiseVideoPacketAcquired;
+            VideoReceiver.VideoPacketAcquired += OnVideoPacketAcquired;
+
+            VideoDecoderWorker = new VideoDecoderWorker(VideoPixelFormat.BGR24);
+            VideoDecoderWorker.FrameDecoded += RaiseVideoFrameDecoded;
         }
 
         public async Task<bool> ConnectAsync()
@@ -157,11 +160,20 @@ namespace Drones.ARDrone.Client
                 if (IsConnected)
                 {
                     await InitMulticonfigurationAsync();
+                    //_droneConfiguration.Video.Bitrate = 30;
+                    _droneConfiguration.General.NavdataOptions = NavdataOptionFlag.Demo
+                        | NavdataOptionFlag.RawMeasures
+                        | NavdataOptionFlag.Magneto
+                        | NavdataOptionFlag.VideoStream
+                        | NavdataOptionFlag.WiFi
+                        | NavdataOptionFlag.Pwm
+                        | NavdataOptionFlag.Wind;
                     Debug.WriteLine("Connected.");
                     return true;
                 }
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
+            Stop();
             return false;
         }
 
@@ -169,8 +181,6 @@ namespace Drones.ARDrone.Client
         {
             Debug.WriteLine("Disconnect...");
             Stop();
-            NavdataReceiver.Stop();
-            ATCommandSender.Stop();
             Debug.WriteLine("Disconnected.");
         }
 
@@ -198,10 +208,44 @@ namespace Drones.ARDrone.Client
             RequestedState = RequestedState.ResetEmergency;
         }
 
+        public void CalibrateMagneto()
+        {
+            Debug.WriteLine("Calibrate magnetometer.");
+            ATCommandSender.Send(CalibCommand.Magnetometer);
+        }
+
+        public void SwitchVideoChannel()
+        {
+            Debug.WriteLine("Switch video channel.");
+            _droneConfiguration.Video.Channel = VideoChannelType.Next;
+        }
+
         public void Move(float roll, float pitch, float gaz, float yaw)
         {
             Debug.WriteLine(string.Format("Move (p: {0}, roll: {1}, gaz: {2}, yaw: {3}).)", pitch, roll, gaz, yaw));
             ATCommandSender.Send(new PCmdCommand(FlightMode.Progressive, roll, pitch, gaz, yaw));
+        }
+
+        public async Task FlipAsync(FlipType type)
+        {
+            switch (type)
+            {
+                case FlipType.Front:
+                    _droneConfiguration.Control.FlightAnimation = new FlightAnimation(FlightAnimationType.FlipAhead);
+                    break;
+                case FlipType.Back:
+                    _droneConfiguration.Control.FlightAnimation = new FlightAnimation(FlightAnimationType.FlipBehind);
+                    break;
+                case FlipType.Left:
+                    _droneConfiguration.Control.FlightAnimation = new FlightAnimation(FlightAnimationType.FlipLeft);
+                    break;
+                case FlipType.Right:
+                    _droneConfiguration.Control.FlightAnimation = new FlightAnimation(FlightAnimationType.FlipRight);
+                    break;
+                default:
+                    return;
+            }
+            await Task.Delay(_droneConfiguration.Control.FlightAnimation.Duration);
         }
 
 
@@ -240,18 +284,10 @@ namespace Drones.ARDrone.Client
                 Thread.Sleep(25);
             }
 
-            // Stop Navdata acquisition.
-            if (NavdataReceiver.IsAlive)
-            {
-                NavdataReceiver.Stop();
-            }
-
-            // Stop sending AT commands.
-            if (ATCommandSender.IsAlive)
-            {
-                ATCommandSender.Stop();
-            }
-
+            NavdataReceiver.Stop();
+            ATCommandSender.Stop();
+            VideoReceiver.Stop();
+            VideoDecoderWorker.Stop();
         }
 
         protected override void DisposeOverride()
@@ -261,6 +297,7 @@ namespace Drones.ARDrone.Client
             NavdataReceiver.Dispose();
             ATCommandSender.Dispose();
             VideoReceiver.Dispose();
+            VideoDecoderWorker.Dispose();
         }
 
 
@@ -271,6 +308,10 @@ namespace Drones.ARDrone.Client
         readonly object _stateRequestSync = new object();
         readonly object _settingsSync = new object();
         Config _droneConfiguration = new Config();
+        double _videoPacketInterval = 0;
+        double _lastLinkQuality = 0;
+        Stopwatch _swVideoPacketInterval;
+        Stopwatch _swWifi;
 
         void OnNavdataAcquisitionStarted()
         {
@@ -282,8 +323,9 @@ namespace Drones.ARDrone.Client
             if (VideoReceiver.IsAlive == false)
             {
                 VideoReceiver.Start();
+                _swWifi = Stopwatch.StartNew();
+                _swVideoPacketInterval = Stopwatch.StartNew();
             }
-
         }
 
         void OnNavdataAcquisitionStopped()
@@ -299,6 +341,12 @@ namespace Drones.ARDrone.Client
             {
                 var navigationData = NavigationData.FromNavdataPacket(packet);
                 CurrentNavigationData = navigationData;
+                navigationData.Communication.LinkQuality = _lastLinkQuality;
+                if (_swWifi.ElapsedMilliseconds > 1000)
+                {
+                    _lastLinkQuality = 100 - _videoPacketInterval;
+                    _swWifi.Restart();
+                }
                 RaiseNavigationDataAcquired(navigationData);
             }
         }
@@ -311,11 +359,25 @@ namespace Drones.ARDrone.Client
             }
         }
 
-        void RaiseVideoPacketAcquired(VideoPacket videoPacket)
+        void OnVideoPacketAcquired(VideoPacket packet)
         {
-            if (VideoPacketAcquired != null)
+            if (VideoDecoderWorker.IsAlive == false)
             {
-                VideoPacketAcquired(videoPacket);
+                VideoDecoderWorker.Start();
+            }
+
+            VideoDecoderWorker.EnqueueVideoPacket(packet);
+        }
+
+        void RaiseVideoFrameDecoded(VideoFrame videoFrame)
+        {
+            _videoPacketInterval = Math.Round((_swVideoPacketInterval.ElapsedMilliseconds + _videoPacketInterval) / 2);
+            //Debug.WriteLine("Video Packet interval = " + _videoPacketInterval);
+            _swVideoPacketInterval.Restart();
+
+            if (VideoFrameDecoded != null)
+            {
+                VideoFrameDecoded(videoFrame);
             }
         }
 
@@ -394,7 +456,7 @@ namespace Drones.ARDrone.Client
             }
 
             // Input.
-            if (requestedState == RequestedState.None && navigationState.HasFlag(NavigationState.Flying))
+            if (requestedState == RequestedState.None)
             {
                 bool isHovering = true;
                 if (XBox360Input.IsConnected)

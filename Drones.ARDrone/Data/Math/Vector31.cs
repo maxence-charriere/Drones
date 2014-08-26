@@ -25,6 +25,11 @@ namespace Drones.ARDrone.Data.Math
         {
         }
 
+        public override string ToString()
+        {
+            return string.Format("x = {0}, y = {1}, z = {2}", X, Y, Z);
+        }
+
         public static Vector31 FromByteArray(byte[] data, uint position)
         {
             var block = new Vector31();

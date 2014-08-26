@@ -39,8 +39,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,11 +48,14 @@
   <ItemGroup>
     <Compile Include="Client\Configuration\HullType.cs" />
     <Compile Include="Client\Configuration\Settings.cs" />
+    <Compile Include="Client\FlipType.cs" />
     <Compile Include="Client\IDroneClient.cs" />
     <Compile Include="Client\Navigation\Battery.cs" />
     <Compile Include="Client\Navigation\CommunicationType.cs" />
+    <Compile Include="Client\Navigation\Component.cs" />
     <Compile Include="Client\Navigation\Distance.cs" />
     <Compile Include="Client\Navigation\DistanceMeasurementUnit.cs" />
+    <Compile Include="Client\Navigation\DroneStatus.cs" />
     <Compile Include="Client\Navigation\INavigationData.cs" />
     <Compile Include="Client\Navigation\Magneto.cs" />
     <Compile Include="Client\Navigation\NavigationDataBase.cs" />
@@ -62,8 +63,12 @@
     <Compile Include="Client\Navigation\SpeedMeasurementUnit.cs" />
     <Compile Include="Client\Navigation\Communication.cs" />
     <Compile Include="Client\Navigation\Video.cs" />
+    <Compile Include="Client\Navigation\Wind.cs" />
     <Compile Include="Client\RequestedState.cs" />
+    <Compile Include="Client\Video\VideoPixelFormat.cs" />
+    <Compile Include="Client\Video\VideoFrame.cs" />
     <Compile Include="Infrastructure\DisposableBase.cs" />
+    <Compile Include="Infrastructure\InteropHelper.cs" />
     <Compile Include="Infrastructure\ModelBase.cs" />
     <Compile Include="Infrastructure\Vector3.cs" />
     <Compile Include="Infrastructure\WorkerBase.cs" />

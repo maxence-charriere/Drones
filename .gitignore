@@ -6,3 +6,6 @@ obj
 /packages
 /Drones/packages.config
 /Drones.Client
+/Design
+/Drones.Client
+/FFmpeg

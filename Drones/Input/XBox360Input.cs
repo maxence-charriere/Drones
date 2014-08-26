@@ -18,6 +18,8 @@ namespace Drones.Input
         public event Action DownPressed;
         public event Action LBPressed;
         public event Action RBPressed;
+        public event Action LStickressed;
+        public event Action RStickressed;
         public event Action LTPressed;
         public event Action RTPressed;
 
@@ -30,6 +32,7 @@ namespace Drones.Input
             }
         }
 
+
         // @Public
         public XBox360Input()
             : base("XBox360 controller")
@@ -39,7 +42,6 @@ namespace Drones.Input
 
         public void Update()
         {
-            #region Init Update
             float pitch = 0;
             float roll = 0;
             float yaw = 0;
@@ -61,34 +63,10 @@ namespace Drones.Input
                 }
                 return;
             }
-            if (_controllerState.PacketNumber <= _controllerPreviousState.PacketNumber)
-            {
-                return;
-            }
-
-            // Thumbs.
-            var leftThumb = NormalizeInput(_controllerState.Gamepad.LeftThumbX, _controllerState.Gamepad.LeftThumbY, Convert.ToInt16(SharpDX.XInput.Gamepad.LeftThumbDeadZone * 1.1), _joystickRange);
-            if (leftThumb.NormalizedMagnitude > 0)
-            {
-                roll = (float)_controllerState.Gamepad.LeftThumbX * _rollThrottle / _joystickRange;
-                pitch = (float)_controllerState.Gamepad.LeftThumbY * _pitchThrottle / _joystickRange;
-            }
-            var rightThumb = NormalizeInput(_controllerState.Gamepad.RightThumbX, _controllerState.Gamepad.RightThumbY, Convert.ToInt16(SharpDX.XInput.Gamepad.RightThumbDeadZone * 1.1), _joystickRange);
-            if (rightThumb.NormalizedMagnitude > 0)
-            {
-                yaw = (float)_controllerState.Gamepad.RightThumbX * _yawThrottle / _joystickRange;
-                gaz = (float)_controllerState.Gamepad.RightThumbY * _gazThrottle / _joystickRange;
-            }
-
-            _failCounter = 0;
-            Pitch = -pitch;
-            Roll = roll;
-            Gaz = gaz;
-            Yaw = yaw;
-            #endregion
 
             // Buttons.
             var buttons = _controllerState.Gamepad.Buttons;
+            
             if (StartPressed != null && buttons.HasFlag(GamepadButtonFlags.Start))
             {
                 StartPressed();
@@ -137,6 +115,14 @@ namespace Drones.Input
             {
                 RBPressed();
             }
+            if (LStickressed != null && buttons.HasFlag(GamepadButtonFlags.LeftThumb))
+            {
+                LStickressed();
+            }
+            if (RStickressed != null && buttons.HasFlag(GamepadButtonFlags.RightThumb))
+            {
+                RStickressed();
+            }
 
             // Triggers.
             if (LTPressed != null && _controllerState.Gamepad.LeftTrigger > 200)
@@ -147,6 +133,31 @@ namespace Drones.Input
             {
                 RTPressed();
             }
+
+            if (_controllerState.PacketNumber <= _controllerPreviousState.PacketNumber)
+            {
+                return;
+            }
+
+            // Thumbs.
+            var leftThumb = NormalizeInput(_controllerState.Gamepad.LeftThumbX, _controllerState.Gamepad.LeftThumbY, Convert.ToInt16(SharpDX.XInput.Gamepad.LeftThumbDeadZone * 1.1), _joystickRange);
+            if (leftThumb.NormalizedMagnitude > 0)
+            {
+                roll = (float)_controllerState.Gamepad.LeftThumbX * _rollThrottle / _joystickRange;
+                pitch = (float)_controllerState.Gamepad.LeftThumbY * _pitchThrottle / _joystickRange;
+            }
+            var rightThumb = NormalizeInput(_controllerState.Gamepad.RightThumbX, _controllerState.Gamepad.RightThumbY, Convert.ToInt16(SharpDX.XInput.Gamepad.RightThumbDeadZone * 1.1), _joystickRange);
+            if (rightThumb.NormalizedMagnitude > 0)
+            {
+                yaw = (float)_controllerState.Gamepad.RightThumbX * _yawThrottle / _joystickRange;
+                gaz = (float)_controllerState.Gamepad.RightThumbY * _gazThrottle / _joystickRange;
+            }
+
+            _failCounter = 0;
+            Pitch = -pitch;
+            Roll = roll;
+            Gaz = gaz;
+            Yaw = yaw;
 
             _controllerPreviousState = _controllerState;
         }

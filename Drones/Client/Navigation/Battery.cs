@@ -22,6 +22,14 @@ namespace Drones.Client.Navigation
             }
         }
 
+        public bool IsCritical
+        {
+            get
+            {
+                return _percentage <= 5;
+            }
+        }
+
         double _percentage = 0;
         public double Percentage
         {
@@ -35,6 +43,7 @@ namespace Drones.Client.Navigation
                 {
                     _percentage = value;
                     RaisePropertyChanged();
+                    RaisePropertyChanged("IsCritical");
                 }
             }
         }

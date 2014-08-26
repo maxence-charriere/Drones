@@ -57,6 +57,23 @@ namespace Drones.Client.Navigation
             }
         }
 
+        DroneStatus _status = DroneStatus.Landed;
+        public DroneStatus Status
+        {
+            get
+            {
+                return _status;
+            }
+            set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
         Distance _altitude = new Distance();
         public Distance Altitude
         {
@@ -171,6 +188,108 @@ namespace Drones.Client.Navigation
                 if (_video != value)
                 {
                     _video = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        Component _frontLeftEngine = new Component();
+        public Component FrontLeftEngine
+        {
+            get
+            {
+                return _frontLeftEngine;
+            }
+            set
+            {
+                if (_frontLeftEngine != value)
+                {
+                    _frontLeftEngine = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        Component _frontRightEngine = new Component();
+        public Component FrontRightEngine
+        {
+            get
+            {
+                return _frontRightEngine;
+            }
+            set
+            {
+                if (_frontRightEngine != value)
+                {
+                    _frontRightEngine = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        Component _rearLeftEngine = new Component();
+        public Component RearLeftEngine
+        {
+            get
+            {
+                return _rearLeftEngine;
+            }
+            set
+            {
+                if (_rearLeftEngine != value)
+                {
+                    _rearLeftEngine = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        Component _rearRightEngine = new Component();
+        public Component RearRightEngine
+        {
+            get
+            {
+                return _rearRightEngine;
+            }
+            set
+            {
+                if (_rearRightEngine != value)
+                {
+                    _rearRightEngine = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        Component _sensors = new Component();
+        public Component Sensors
+        {
+            get
+            {
+                return _sensors;
+            }
+            set
+            {
+                if (_sensors != value)
+                {
+                    _sensors = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        Wind _wind = new Wind();
+        public Wind Wind
+        {
+            get
+            {
+                return _wind;
+            }
+            set
+            {
+                if (_wind != value)
+                {
+                    _wind = value;
                     RaisePropertyChanged();
                 }
             }

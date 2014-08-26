@@ -1,17 +1,18 @@
-﻿using Drones.ARDrone.Data.Video;
-using System;
+﻿using System;
+using System.Runtime.InteropServices;
 
-namespace Drones.ARDrone.Client.Video
+namespace Drones.ARDrone.Data.Video
 {
-    public class VideoPacket
+    [StructLayout(LayoutKind.Sequential)]
+    public struct VideoPacket
     {
         // @Properties
-        public long Timestamp { get; set; }
-        public uint FrameNumber { get; set; }
-        public ushort Height { get; set; }
-        public ushort Width { get; set; }
-        public VideoFrameType FrameType { get; set; }
-        public byte[] Data { get; set; }
+        public long Timestamp;
+        public uint FrameNumber;
+        public ushort Height;
+        public ushort Width;
+        public VideoFrameType FrameType;
+        public byte[] Data;
 
         public static VideoPacket FromParrotVideoEncapsulation(ParrotVideoEncapsulation pve)
         {
@@ -50,11 +51,6 @@ namespace Drones.ARDrone.Client.Video
                 Height,
                 FrameType,
                 Data.Length);
-        }
-
-        // @Private
-        VideoPacket()
-        {
         }
     }
 }

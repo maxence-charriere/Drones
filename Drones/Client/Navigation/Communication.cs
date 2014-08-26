@@ -31,6 +31,11 @@ namespace Drones.Client.Navigation
             }
             set
             {
+                if (value <= 0)
+                {
+                    value = 0;
+                }
+
                 if (_linkQuality != value)
                 {
                     _linkQuality = value;

@@ -2,7 +2,6 @@
 {
     public enum HullType
     {
-        Default,
         Indoor,
         Outdoor
     }

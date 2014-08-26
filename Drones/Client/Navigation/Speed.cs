@@ -1,7 +1,8 @@
 ﻿using Drones.Infrastructure;
+using System;
 namespace Drones.Client.Navigation
 {
-    public class Speed : Vector3
+    public class Speed : Vector3, IEquatable<Speed>, IComparable<Speed>
     {
         SpeedMeasurementUnit _measurementUnit = SpeedMeasurementUnit.MetersPerSecond;
         public SpeedMeasurementUnit MeasurementUnit
@@ -20,6 +21,14 @@ namespace Drones.Client.Navigation
             }
         }
 
+        public double HighestValue
+        {
+            get
+            {
+                return GetHighestValue();
+            }
+        }
+
 
         // @Public
         public Speed()
@@ -34,28 +43,58 @@ namespace Drones.Client.Navigation
             MeasurementUnit = measurementUnit;
         }
 
-        public void ChangeMeasurementUnit(SpeedMeasurementUnit measurementUnit)
+        public Speed ChangeMeasurementUnit(SpeedMeasurementUnit measurementUnit)
         {
+            var speed = new Speed(X, Y, Z, MeasurementUnit);
+
             switch (measurementUnit)
             {
                 case SpeedMeasurementUnit.MetersPerSecond:
-                    ToMetersPerSecond();
+                    speed.ToMetersPerSecond();
                     break;
                 case SpeedMeasurementUnit.KilometersPerHour:
-                    ToKilometersPerHour();
+                    speed.ToKilometersPerHour();
                     break;
                 case SpeedMeasurementUnit.MilesPerHour:
-                    ToMilesPerHour();
+                    speed.ToMilesPerHour();
                     break;
                 case SpeedMeasurementUnit.Knots:
-                    ToKnots();
+                    speed.ToKnots();
                     break;
                 case SpeedMeasurementUnit.FeetPerSecond:
-                    ToFeetPerSecond();
+                    speed.ToFeetPerSecond();
                     break;
                 default:
                     break;
             }
+
+            return speed;
+        }
+
+        public double GetHighestValue()
+        {
+            double max = X;
+            if (Y > max)
+            {
+                max = Y;
+            }
+            if (Z > max)
+            {
+                max = Z;
+            }
+            return max;
+        }
+
+        public bool Equals(Speed other)
+        {
+            var speed = other.ChangeMeasurementUnit(MeasurementUnit);
+            return (X == speed.X && Y == speed.Y && Z == speed.Z);
+        }
+
+        public int CompareTo(Speed other)
+        {
+            var speed = other.ChangeMeasurementUnit(MeasurementUnit);
+            return Convert.ToInt32(GetHighestValue() - speed.GetHighestValue());
         }
 
 

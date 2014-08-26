@@ -25,11 +25,18 @@ namespace Drones.Client.Navigation
         /// <value> The altitude. </value>
         Distance Altitude { get; set; }
 
+        DroneStatus Status { get; set; }
         DateTime Time { get; set; }
         Speed Speed { get; set; }
         Magneto Magneto { get; set; }
         Battery Battery { get; set; }
         Communication Communication { get; set; }
         Video Video { get; set; }
+        Component FrontLeftEngine { get; set; }
+        Component FrontRightEngine { get; set; }
+        Component RearLeftEngine { get; set; }
+        Component RearRightEngine { get; set; }
+        Component Sensors { get; set; }
+        Wind Wind { get; set; }
     }
 }

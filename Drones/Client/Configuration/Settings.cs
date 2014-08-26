@@ -14,7 +14,7 @@ namespace Drones.Client.Configuration
             }
             set
             {
-                if (_verticalThrust != value)
+                if (_verticalThrust != value && value >= 0 && value <= 100)
                 {
                     _verticalThrust = value;
                     RaisePropertyChanged();
@@ -31,7 +31,7 @@ namespace Drones.Client.Configuration
             }
             set
             {
-                if (_horizontalThrust != value)
+                if (_horizontalThrust != value && value >= 0 && value <= 100)
                 {
                     _horizontalThrust = value;
                     RaisePropertyChanged();
@@ -48,7 +48,7 @@ namespace Drones.Client.Configuration
             }
             set
             {
-                if (_yawThrust != value)
+                if (_yawThrust != value && value >= 0 && value <= 100)
                 {
                     _yawThrust = value;
                     RaisePropertyChanged();
@@ -65,7 +65,7 @@ namespace Drones.Client.Configuration
             }
             set
             {
-                if (_maximumAltitude != value)
+                if (_maximumAltitude != value && value > 0)
                 {
                     _maximumAltitude = value;
                     RaisePropertyChanged();
@@ -73,7 +73,7 @@ namespace Drones.Client.Configuration
             }
         }
 
-        HullType _hullType = HullType.Default;
+        HullType _hullType = HullType.Indoor;
         public HullType HullType
         {
             get

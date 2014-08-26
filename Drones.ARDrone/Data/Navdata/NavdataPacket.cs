@@ -27,6 +27,8 @@ namespace Drones.ARDrone.Data.Navdata
         public NavdataMagneto Magneto { get; private set; }
         public NavdataVideoStream VideoStream { get; private set; }
         public NavdataWifi Wifi { get; private set; }
+        public NavdataPwn Pwn { get; private set; }
+        public NavdataWind Wind { get; private set; }
 
 
         // @Public
@@ -79,6 +81,14 @@ namespace Drones.ARDrone.Data.Navdata
                             case NavdataOptionTag.Wifi:
                                 Wifi = NavdataWifi.FromByteArray(Data, position);
                                 position += Wifi.Size;
+                                break;
+                            case NavdataOptionTag.Pwm:
+                                Pwn = NavdataPwn.FromByteArray(Data, position);
+                                position += Pwn.Size;
+                                break;
+                            case NavdataOptionTag.Wind:
+                                Wind = NavdataWind.FromByteArray(Data, position);
+                                position += Wind.Size;
                                 break;
                             default:
                                 position += option.Size;

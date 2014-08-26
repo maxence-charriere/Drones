@@ -2,6 +2,7 @@
 using Drones.ARDrone.Extensions;
 using Drones.Client.Navigation;
 using System;
+using System.Diagnostics;
 
 namespace Drones.ARDrone.Client.Navigation
 {
@@ -36,10 +37,10 @@ namespace Drones.ARDrone.Client.Navigation
             {
                 navigationData.UpdateState(packet.Demo.State);
 
-                navigationData.Pitch = packet.Demo.Theta * 1000;
-                navigationData.Roll = packet.Demo.Phi * 1000;
-                navigationData.Yaw = packet.Demo.Psi * 1000;
-                navigationData.Altitude = new Distance(packet.Demo.Altitude / 100.0f);
+                navigationData.Pitch = packet.Demo.Theta / 1000;
+                navigationData.Roll = packet.Demo.Phi / 1000;
+                navigationData.Yaw = packet.Demo.Psi / 1000;
+                navigationData.Altitude = new Distance(packet.Demo.Altitude / 1000.0f);
 
                 navigationData.Speed = new Speed()
                 {
@@ -62,6 +63,10 @@ namespace Drones.ARDrone.Client.Navigation
             // Magneto.
             if (packet.Magneto != null)
             {
+                navigationData.Magneto.Raw.X = packet.Magneto.MagnetoRaw.X;
+                navigationData.Magneto.Raw.Y = packet.Magneto.MagnetoRaw.Y;
+                navigationData.Magneto.Raw.Z = packet.Magneto.MagnetoRaw.Z;
+
                 navigationData.Magneto.Rectified.X = packet.Magneto.MagnetoRectified.X;
                 navigationData.Magneto.Rectified.Y = packet.Magneto.MagnetoRectified.Y;
                 navigationData.Magneto.Rectified.Z = packet.Magneto.MagnetoRectified.Z;
@@ -78,11 +83,44 @@ namespace Drones.ARDrone.Client.Navigation
                 navigationData.Video.BitRate = packet.VideoStream.OutBitrate;
             }
 
-            // Wifi
+            // Wifi.
             if (packet.Wifi != null)
             {
                 navigationData.Communication.Type = CommunicationType.Wifi;
                 navigationData.Communication.LinkQuality = 1.0f - packet.Wifi.LinkQuality.ToFloat();
+            }
+
+            // Pwn.
+            if (packet.Pwn != null)
+            {
+                if (packet.Pwn.SatMotor1 < 255)
+                {
+                    navigationData.FrontLeftEngine.IsFunctional = false;
+
+                }
+                if (packet.Pwn.SatMotor2 < 255)
+                {
+                    navigationData.FrontRightEngine.IsFunctional = false;
+
+                }
+                if (packet.Pwn.SatMotor3 < 255)
+                {
+                    navigationData.RearRightEngine.IsFunctional = false;
+
+                }
+                if (packet.Pwn.SatMotor4 < 255)
+                {
+                    navigationData.RearLeftEngine.IsFunctional = false;
+
+                }
+                //Debug.WriteLine(packet.Pwn);
+                
+                // Wind.
+                if (packet.Wind != null)
+                {
+                    navigationData.Wind.Speed = new Speed(packet.Wind.WindSpeed, packet.Wind.WindSpeed, 0);
+                    navigationData.Wind.Angle = Math.Round(packet.Wind.WindAngle) * -1;
+                }
             }
 
             return navigationData;
@@ -102,10 +140,12 @@ namespace Drones.ARDrone.Client.Navigation
             if (droneState.HasFlag(DroneStateMask.FlyMask))
             {
                 State |= NavigationState.Flying;
+                Status = DroneStatus.Flying;
             }
             else
             {
                 State |= NavigationState.Landed;
+                Status = DroneStatus.Landed;
             }
 
             if (droneState.HasFlag(DroneStateMask.WindMask))
@@ -116,6 +156,7 @@ namespace Drones.ARDrone.Client.Navigation
             if (droneState.HasFlag(DroneStateMask.EmergencyMask))
             {
                 State |= NavigationState.Emergency;
+                Status = DroneStatus.Emergency;
             }
 
             if (droneState.HasFlag(DroneStateMask.CommandMask))

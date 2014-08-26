@@ -1,4 +1,5 @@
 ﻿using Drones.ARDrone.Data.Configuration;
+using Drones.ARDrone.Extensions;
 using Drones.Infrastructure;
 using System;
 using System.Collections.Concurrent;
@@ -51,6 +52,7 @@ namespace Drones.ARDrone.Client.ATCommands
         protected override void Loop(CancellationToken token)
         {
             System.Diagnostics.Debug.WriteLine("ATCommandSender started.");
+            CommandQueue.Flush();
             using (var udpClient = new UdpClient(CommandPort))
             {
                 // Connection.
